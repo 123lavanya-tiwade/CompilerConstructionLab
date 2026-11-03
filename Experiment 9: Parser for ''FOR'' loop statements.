@@ -1,0 +1,86 @@
+#for.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+"for"       { return FOR; }
+"int"       { return INT; }
+[a-zA-Z_][a-zA-Z0-9_]* { return ID; }
+[0-9]+      { return NUM; }
+"++"        { return INC; }
+"--"        { return DEC; }
+"<="        { return LE; }
+">="        { return GE; }
+"=="        { return EQ; }
+"!="        { return NE; }
+[=<>+\-*/]  { return yytext[0]; }
+[();{}]     { return yytext[0]; }
+[ \t\n]     ;
+.           { return yytext[0]; }
+%%
+
+int yywrap()
+{
+    return 1;
+}
+
+#for.y
+%{
+#include <stdio.h>
+int yylex();
+int yyerror(char *s);
+%}
+
+%token FOR INT ID NUM INC DEC LE GE EQ NE
+
+%%
+statement:
+    FOR '(' initialization ';' condition ';' increment ')' 
+    '{' statement_body '}'
+    {
+        printf("Valid FOR loop statement\n");
+    }
+    ;
+
+initialization:
+      INT ID '=' NUM
+    | ID '=' NUM
+    ;
+
+condition:
+      ID '<' NUM
+    | ID '>' NUM
+    | ID LE NUM
+    | ID GE NUM
+    | ID EQ NUM
+    | ID NE NUM
+    ;
+
+increment:
+      ID INC
+    | ID DEC
+    | ID '=' ID '+' NUM
+    | ID '=' ID '-' NUM
+    ;
+
+statement_body:
+      ID '=' NUM ';'
+    | ID INC ';'
+    | ID DEC ';'
+    | 
+    ;
+%%
+
+int yyerror(char *s)
+{
+    printf("Invalid FOR loop statement\n");
+    return 0;
+}
+
+int main()
+{
+    printf("Enter FOR loop statement:\n");
+    yyparse();
+    return 0;
+}
