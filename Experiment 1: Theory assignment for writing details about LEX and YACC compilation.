@@ -1,0 +1,108 @@
+# lexprog.l
+%{
+#include <stdio.h>
+%}
+
+%%
+[0-9]+          { printf("Number: %s\n", yytext); }
+[a-zA-Z][a-zA-Z0-9]* { printf("Identifier: %s\n", yytext); }
+[ \t\n]+        ;
+.               { printf("Special Symbol: %s\n", yytext); }
+%%
+
+int yywrap()
+{
+    return 1;
+}
+
+int main()
+{
+    printf("Enter input:\n");
+    yylex();
+    return 0;
+}
+
+#yaccprog.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+%}
+
+%token NUMBER
+
+%%
+E : E '+' E
+  | E '-' E
+  | E '*' E
+  | E '/' E
+  | '(' E ')'
+  | NUMBER
+  ;
+%%
+
+int yyerror(char *s)
+{
+    printf("Invalid Expression\n");
+    return 0;
+}
+
+int main()
+{
+    printf("Enter an arithmetic expression:\n");
+
+    if(yyparse() == 0)
+        printf("Valid Expression\n");
+
+    return 0;
+}
+
+#lex.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+[0-9]+      { return NUMBER; }
+[+\-*/()]   { return yytext[0]; }
+[ \t\n]     ;
+.           { return yytext[0]; }
+%%
+
+int yywrap()
+{
+    return 1;
+}
+
+#yacc.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+%}
+
+%token NUMBER
+
+%%
+E : E '+' E
+  | E '-' E
+  | E '*' E
+  | E '/' E
+  | '(' E ')'
+  | NUMBER
+  ;
+%%
+
+int yyerror(char *s)
+{
+    printf("Invalid Expression\n");
+    return 0;
+}
+
+int main()
+{
+    printf("Enter expression:\n");
+
+    if(yyparse() == 0)
+        printf("Valid Expression\n");
+
+    return 0;
+}
