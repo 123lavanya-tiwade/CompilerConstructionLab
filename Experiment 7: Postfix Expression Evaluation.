@@ -1,0 +1,54 @@
+#postfix.l
+%{
+#include "y.tab.h"
+#include <stdlib.h>
+%}
+
+%%
+[0-9]+      { yylval = atoi(yytext); return NUMBER; }
+[+\-*/]     { return yytext[0]; }
+[ \t\n]     ;
+.           { return yytext[0]; }
+%%
+
+int yywrap()
+{
+    return 1;
+}
+
+#postfix.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+int yylex();
+int yyerror(char *s);
+%}
+
+%token NUMBER
+
+%%
+input:
+    expression '\n' { printf("Result = %d\n", $1); }
+    ;
+
+expression:
+      NUMBER
+    | expression expression '+' { $$ = $1 + $2; }
+    | expression expression '-' { $$ = $1 - $2; }
+    | expression expression '*' { $$ = $1 * $2; }
+    | expression expression '/' { $$ = $1 / $2; }
+    ;
+%%
+
+int yyerror(char *s)
+{
+    printf("Invalid Postfix Expression\n");
+    return 0;
+}
+
+int main()
+{
+    printf("Enter postfix expression:\n");
+    yyparse();
+    return 0;
+}
