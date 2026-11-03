@@ -1,0 +1,42 @@
+#com.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+.*com\n     { return VALID; }
+.*\n        { return INVALID; }
+%%
+
+int yywrap()
+{
+    return 1;
+}
+
+#com.y
+%{
+#include <stdio.h>
+int yylex();
+int yyerror(char *s);
+%}
+
+%token VALID INVALID
+
+%%
+input:
+      VALID   { printf("Line ends with com\n"); }
+    | INVALID { printf("Line does not end with com\n"); }
+    ;
+%%
+
+int yyerror(char *s)
+{
+    return 0;
+}
+
+int main()
+{
+    printf("Enter a line:\n");
+    yyparse();
+    return 0;
+}
